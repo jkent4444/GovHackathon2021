@@ -1,52 +1,59 @@
-let map, 
+var map, 
 infoWindow, 
 homeMarker,
 currPos,
 homeCircle,
 currentPostcode,
-closePostcodes;
+closePostcodes,
+dataInBounds,
+testDataWithinBounds,
+caseDataWithinBounds,
+total_new_cases,
+total_active,
+total_tests;
 
 var markers = {
     "locationMarkers": [],
     "businessMarkers": [],
+    "inforMarkers":[]
 }
 
 
 function getlatLngOffsets(pos, distance){
     //Position, decimal degrees
-    lat = pos.lat
-    lng = pos.lng
+    var lat = pos.lat
+    var  lng = pos.lng
 
     //Earth’s radius, sphere
-    R=6378137
+    var R=6378137
 
     //offsets in meters
-    dn = distance
-    de = distance
+    var dn = distance
+    var de = distance
 
     //Coordinate offsets in radians
-    dLat = dn/R
+    var dLat = dn/R
 
-    dLon = de/(R*Math.cos(Math.PI*lat/180))
+    var dLon = de/(R*Math.cos(Math.PI*lat/180))
 
     //OffsetPosition, decimal degrees
-    latO = lat + dLat * 180/Math.PI
-    lonO = lng + dLon * 180/Math.PI
+    var latO = lat + dLat * 180/Math.PI
+    var lonO = lng + dLon * 180/Math.PI
 
-    latNegO = lat - dLat * 180/Math.PI
-    lonNegO = lng - dLon * 180/Math.PI
+    var latNegO = lat - dLat * 180/Math.PI
+    var lonNegO = lng - dLon * 180/Math.PI
 
-    posOffset = {
+    var posOffset = {
       lat: latO,
       lng: lonO,
     }
 
-    negPosOffset = {
+    var negPosOffset = {
       lat: latNegO,
       lng: lonNegO,
     }
 
-    LatLngBounds = {
+    var LatLngBounds = {
       negPosOffset: negPosOffset, 
       posOffset: posOffset
     }
@@ -67,6 +74,134 @@ function calcCrow(lat1, lon1, lat2, lon2) {
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
   var d = R * c;
   return d;
+}
+
+function getSecondsFortnightAGosDate(){
+  return  new Date(Date.now() - 12096e5).getTime();
+}
+
+function getCasesDataWithinTimeFrame(time, casesData){
+  var data = [];
+  
+  for(var i = 0; i < casesData.length; i++){
+      caseData = casesData[i];
+      var caseTime = new Date(caseData.data_date).getTime();
+      if(caseTime >= time){
+        data.push(caseData);
+      }
+  }
+  return data;
+}
+
+function getUniquePostCodeInBounds(){
+  var postcodes = [];
+  for(data in dataInBounds){
+    var postcode = dataInBounds[data].postcode;
+    if(postcodes.indexOf(postcode) === -1) {
+      postcodes.push(postcode);
+    }
+  }
+  return postcodes
+}
+
+function getCasesDataWithinBounds(casesData){
+  var data = [];
+  if(dataInBounds.length !== 0){
+    postcodes = getUniquePostCodeInBounds();
+    for(var i = 0; i < casesData.length; i++){
+      var postcode = casesData[i].postcode;
+      if(postcodes.indexOf(postcode) !== -1) {
+        data.push(casesData[i]);
+      }
+    }
+  }
+  
+  return data;
+}
+
+function sumTotalNewCases(casesData){
+  var total_new_cases = 0;
+  for(var i = 0; i < casesData.length; i++){
+    if(casesData[i].new !== null){
+      total_new_cases += casesData[i].new;
+      
+    }
+  }
+  
+  return total_new_cases;
+}
+
+function sumTotalActiveCases(casesData){
+  var total_active = 0;
+  for(var i = 0; i < casesData.length; i++){
+    if(casesData[i].active !== null){
+      total_active += casesData[i].active;
+    }
+  }
+
+  return total_active;
+}
+
+function sumTotalTestsCases(testsData){
+  var total_tests = 0;
+  for(var i = 0; i < testsData.length; i++){
+    if(testsData[i][3] !== null){
+      total_tests += testsData[i][3];
+    }
+  }
+
+  return total_tests;
+}
+
+function getTestsDataWithinBounds(testData){
+  var data = [];
+  if(dataInBounds.length !== 0){
+    postcodes = getUniquePostCodeInBounds();
+    for(var i = 0; i < testData.length; i++){
+      var postcode = parseInt(testData[i][2]);
+      if(postcodes.indexOf(postcode) !== -1) {
+        data.push(testData[i]);
+      }
+    }
+  }
+  return data;
+}
+
+function getTestsDataWithinTimeFrame(time, testsData){
+  var data = [];
+  
+  for(var i = 0; i < testsData.length; i++){
+      testData = testsData[i];
+      
+      var testTime = new Date(testsData[i][1]).getTime();
+      if(testTime >= time){
+        data.push(testData);
+      }
+  }
+
+  return data;
+}
+
+function updateInfoContainer(){
+  jQuery("#total-new-cases").text(total_new_cases);
+  jQuery("#total-active-cases").text(total_active);
+  jQuery("#total-tests").text(total_tests);
+}
+
+function getLastTwoWeeksOfEntries(casesData, testData){
+  var ftime = getSecondsFortnightAGosDate()
+  var dataInTimeFrame = getCasesDataWithinTimeFrame(ftime, casesData);
+  caseDataWithinBounds = getCasesDataWithinBounds(dataInTimeFrame);
+
+  var testDataInTimeFrame = getTestsDataWithinTimeFrame(ftime, testData);
+  testDataWithinBounds = getTestsDataWithinBounds(testDataInTimeFrame);
+
+
+  total_new_cases = sumTotalNewCases(caseDataWithinBounds);
+  total_active = sumTotalActiveCases(caseDataWithinBounds);
+  total_tests = sumTotalTestsCases(testDataWithinBounds);
+
+  updateInfoContainer();
 }
 
 // Converts numeric degrees to radians
@@ -108,23 +243,10 @@ function getAllPostCodesWithinRadius(dataWithinBounds, radius){
   return dataWithinRadius;
 }
 
-function getAllClosePostCodes(radius){
+function setDataWithinBounds(radius){
   var LatLngBounds = getlatLngOffsets(currPos, radius);
   dataWithinBounds = getAllPostCodesWithInBounds(LatLngBounds);
-
-  Postcodes = getAllPostCodesWithinRadius(dataWithinBounds, radius);
-
-  for(postcode in Postcodes){
-    locationData = Postcodes[postcode]
-    var markers = new google.maps.Marker({
-      position: {
-        lat:locationData.lat,
-        lng:locationData.lon},
-      map,
-      title: "Current Location",
-    });
-  }
- 
+  dataInBounds = getAllPostCodesWithinRadius(dataWithinBounds, radius);
 }
 
 function initMap() {
@@ -208,7 +330,6 @@ function askForGeoLocation(infoWindow){
             } else {
               pos = JSON.parse(currPosItem);
               currPos = pos
-              console.log(currPos);
               placeHomeMarkerOnPos(pos);
             }
           },
@@ -231,8 +352,16 @@ function updateCurrPos(){
 /** CIRCLE RANGE */
 function updateCircle(){
   var key = parseInt(jQuery("#slider-range").val());
-  var distance = parseInt(jQuery(".slider-range-container span:eq("+key+")").attr("value"));
-  homeCircle.setMap(null);
+  var distance = parseInt(jQuery(".slider-range-container span[key='"+key+"']").attr("value"));
+  
+  setDataWithinBounds(distance)
+  getLastTwoWeeksOfEntries(postCodesMonth, postCodeTests)
+  
+
+  if(homeCircle !== undefined){
+    homeCircle.setMap(null);
+  }
+  
   homeCircle = new google.maps.Circle({
     strokeColor: "black",
     strokeOpacity: 0.8,
@@ -266,23 +395,12 @@ function updateCircle(){
       map.setZoom(18);
   }
     
-
+  map.setCenter(homeMarker.getPosition());
 }
 
 function addSliderControl(){
   setTimeout(function(){
-      homeCircle = new google.maps.Circle({
-        strokeColor: "#black",
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: "green",
-        fillOpacity: 0.1,
-        map,
-        center: currPos,
-        radius: 1000,
-        clickable:false
-      });
-      homeCircle.setMap(map);
+    updateCircle();
   },500);
   jQuery("#slider-range").change(function(){
       updateCircle();
@@ -321,7 +439,6 @@ function addLeftClickTracking(){
   google.maps.event.addListener(map, "click", function(event) {
     if(event.placeId !== undefined){
       placeRating(event.placeId)
-      
     }
   });
 }

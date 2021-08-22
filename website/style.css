@@ -1,64 +1,82 @@
 /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
-#map {
-  height: 100%;
-  width:100%;
-}
-
-/* Optional: Makes the sample page fill the window. */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.checkbox-container {
-  position:absolute;
-  bottom:80px;
-  z-index:100;
-  width:200px;
-  left:calc(100% - 250px);
-  display:flex;
-  flex-wrap:wrap;
-
-}
-
-.checkbox-container .checkbox{
-  width:100%;
-}
-
-
-.range-container {
-  position:absolute;
-  left:40px;
-  bottom:60px;
-  z-index:100;
-  min-width:160px;
-  display:flex;
-  flex-wrap:wrap;
-}
-
-
-.range-container input{
-  width:100%;
-}
-
-.slider-container h4{
-  margin:0px;
-  width:250px;
-}
-
-.slider-range-container {
-  width:calc(100% + 8px);
-  margin-left:-4px;
-  display:flex;
-  justify-content:space-between
-}
-
-.slider-range-container span{
-  display:block;
-  width:16px;
-  text-align:center;
-}
-
+       #map {
+        height: calc(100% - 100px) ;
+        width:100%;
+          position:fixed!important;
+          top:50px;
+          left:0px;
+      }
+      
+      #footer-widgets {
+      display:none;
+      }
+      
+      /* Optional: Makes the sample page fill the window. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .checkbox-container {
+        position:fixed;
+        bottom:80px;
+        z-index:100;
+        width:200px;
+        left:calc(100% - 250px);
+        display:flex;
+        flex-wrap:wrap;
+      
+      }
+      
+      .checkbox-container .checkbox{
+        width:100%;
+      }
+      
+      
+      .range-container {
+        position:fixed;
+        left:40px;
+        bottom:60px;
+        z-index:100;
+        display:flex;
+        flex-wrap:wrap;
+        flex-direction:column;
+        padding:25px;
+        padding-right:15px;
+        background-color: rgb(255 255 255 / 56%);
+      }
+      
+      .info-container {
+        padding-bottom:20px;
+      }
+      
+      .range-container input{
+        width:100%;
+      }
+      
+      .range-container h4{
+        margin:0px;
+        width:280px;
+      }
+      
+      .slider-container {
+        padding-right:20px;
+      }
+      
+      .slider-range-container {
+        width:calc(100% + 8px);
+        margin-left:-4px;
+        display:flex;
+        justify-content:space-between
+      }
+      
+      .slider-range-container span{
+        display:block;
+        width:50px;
+        text-align:center;
+      }
+      
+      

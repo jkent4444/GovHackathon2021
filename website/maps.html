@@ -3,11 +3,12 @@
   <head>
     <title>Simple Map</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <script src="./jQuery.js"></script>
-    <link rel="stylesheet" type="text/css" href="./style.css" />
-    <script src="./index.js"></script>
-    <script src="./postcode-latlng.js"></script>
-    
+    <script src="https://covidsafedata.com.au/wp-content/uploads/jQuery.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://covidsafedata.com.au/wp-content/uploads/style.css" />
+    <script src="https://covidsafedata.com.au/wp-content/uploads/index.js"></script>
+    <script src="https://covidsafedata.com.au/wp-content/uploads/postcode-latlng.js"></script>
+    <script src="https://covidsafedata.com.au/wp-content/uploads/postcode-cases-month.js"></script>
+    <script src="https://covidsafedata.com.au/wp-content/uploads/postcode-tests.js"></script>
   </head>
   <body>
     <div id="map"></div>
@@ -15,18 +16,27 @@
 
     <div class="checkbox-container">
       <div class="checkbox" id="heatmap">
-        <input type="checkbox" id="overlayid" name="overlayname" value="overlayvalue" onclick="myFunction()" checked="checked">Enable Covid Hotspots<br>
+        <input type="checkbox" id="overlayid" name="overlayname" value="overlayvalue" onclick="myFunction()" checked="checked">View Covid Hotspots<br>
 
       </div>
     </div>
 
     <div class="range-container">
+      <div class="info-container">
+        <h4>Local Statistics:</h4>
+        <div class="info-box">
+          <div><span>New Cases:</span> <span id="total-new-cases">-</span></div>
+          <div><span>Active Cases:</span> <span id="total-active-cases">-</span></div>
+          <div><span>Tests:</span> <span id="total-tests">-</span></div>
+        </div>
+        
+      </div>
+
       <div class="range" id="range">
         <div class="slider-container">
-          <h4>Circle Radius</h4>
-          <input type="range" min="0" max="5" value="3" class="slider" id="slider-range">
+          <h4>Zone Radius</h4>
+          <input type="range" min="1" max="5" value="3" class="slider" id="slider-range">
           <div class="slider-range-container">
-            <span key="0" value="0" text="m">0</span>
             <span key="1" value="200" text="250m">250m</span>
             <span key="2" value="500" text="500m" >500m</span>
             <span key="3" value="1000" text="1km">1km</span>
